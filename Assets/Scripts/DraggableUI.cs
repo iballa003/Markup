@@ -14,7 +14,7 @@ public class DraggableUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     {
         rectTransform = GetComponent<RectTransform>();
         canvasGroup = GetComponent<CanvasGroup>();
-        canvas = GetComponentInParent<Canvas>(); // Busca el Canvas padre
+        canvas = GetComponentInParent<Canvas>();
         originalPosition = rectTransform.anchoredPosition;
     }
 
