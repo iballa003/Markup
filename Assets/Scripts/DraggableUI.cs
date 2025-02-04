@@ -3,46 +3,40 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-public class DraggableUI : EventTrigger
+public class DraggableUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    private bool startDragging;
-    // Start is called before the first frame update
+    private RectTransform rectTransform;
+    private CanvasGroup canvasGroup;
+    private Canvas canvas;
+    private Vector2 originalPosition; // Guarda la posición original
 
-    private Button _button;
-    public Vector3 oldPosition;
-    void Start()
+    private void Awake()
     {
-        _button = GetComponent<Button>();
-        oldPosition = _button.transform.position;
-        
+        rectTransform = GetComponent<RectTransform>();
+        canvasGroup = GetComponent<CanvasGroup>();
+        canvas = GetComponentInParent<Canvas>(); // Busca el Canvas padre
+        originalPosition = rectTransform.anchoredPosition;
     }
 
-    // Update is called once per frame
-    void Update()
+    public void OnBeginDrag(PointerEventData eventData)
     {
-        if(startDragging){
-            transform.position = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
-            
-            
+        canvasGroup.alpha = 0.6f; // Hace el objeto más transparente al arrastrar
+        canvasGroup.blocksRaycasts = false; // Permite que otros objetos reciban eventos de raycast
+    }
+
+    public void OnDrag(PointerEventData eventData)
+    {
+        rectTransform.anchoredPosition += eventData.delta / canvas.scaleFactor; // Ajusta la posición relativa al Canvas
+    }
+
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        canvasGroup.alpha = 1.0f; // Restaura la opacidad
+        canvasGroup.blocksRaycasts = true; // Vuelve a permitir raycasts
+
+        if (!eventData.pointerEnter || eventData.pointerEnter.GetComponent<Slot>() == null)
+        {
+            rectTransform.anchoredPosition = originalPosition;
         }
-        if (Input.GetKeyDown("space"))
-            {
-                ResetPosition();
-            }
-    }
-
-    public override void OnPointerDown(PointerEventData eventData)
-    {
-        startDragging = true;
-    }
-
-    public void ResetPosition(){
-        transform.position = oldPosition;
-    }
-
-    public override void OnPointerUp(PointerEventData eventData)
-    {
-        startDragging = false;
-        ResetPosition();
     }
 }
