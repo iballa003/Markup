@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -9,28 +10,33 @@ public class DraggableUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     private CanvasGroup canvasGroup;
     private Canvas canvas;
     private Vector2 originalPosition; // Guarda la posición original
-
+    public string htmlTag; // Etiqueta HTML que representa este botón
+    private TextMeshProUGUI buttonText;
     private void Awake()
     {
         rectTransform = GetComponent<RectTransform>();
         canvasGroup = GetComponent<CanvasGroup>();
         canvas = GetComponentInParent<Canvas>();
         originalPosition = rectTransform.anchoredPosition;
+        buttonText = GetComponentInChildren<TextMeshProUGUI>(); // Obtiene el texto al iniciar
     }
 
     public void OnBeginDrag(PointerEventData eventData)
     {
+        if (GameManager.instance.winLevel) return;
         canvasGroup.alpha = 0.6f; // Hace el objeto más transparente al arrastrar
         canvasGroup.blocksRaycasts = false; // Permite que otros objetos reciban eventos de raycast
     }
 
     public void OnDrag(PointerEventData eventData)
     {
+        if (GameManager.instance.winLevel) return;
         rectTransform.anchoredPosition += eventData.delta / canvas.scaleFactor; // Ajusta la posición relativa al Canvas
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
+        if (GameManager.instance.winLevel) return;
         canvasGroup.alpha = 1.0f; // Restaura la opacidad
         canvasGroup.blocksRaycasts = true; // Vuelve a permitir raycasts
 
@@ -38,5 +44,10 @@ public class DraggableUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         {
             rectTransform.anchoredPosition = originalPosition;
         }
+    }
+
+    public string GetButtonText()
+    {
+        return buttonText != null ? buttonText.text : "Texto no encontrado";
     }
 }
